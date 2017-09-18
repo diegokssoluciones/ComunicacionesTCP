@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.shape.Circle?>
+
+<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <columnConstraints>
+      <ColumnConstraints />
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+      <RowConstraints />
+   </rowConstraints>
+   <children>
+      <TabPane prefHeight="383.0" prefWidth="537.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab fx:id="pestanaServidor" text="Servidor">
+               <content>
+                  <Pane prefHeight="348.0" prefWidth="533.0">
+                     <children>
+                        <Circle fx:id="indicadorServer" fill="#ff491f" layoutX="24.0" layoutY="24.0" radius="10.0" stroke="BLACK" strokeType="INSIDE" />
+                        <TextField fx:id="hostServidor" editable="false" layoutX="49.0" layoutY="11.0" prefHeight="27.0" prefWidth="191.0" promptText="localhost" />
+                        <TextField fx:id="puertoServidor" layoutX="267.0" layoutY="11.0" prefHeight="27.0" prefWidth="88.0" />
+                        <Button fx:id="conexionServidor" layoutX="409.0" layoutY="11.0" mnemonicParsing="false" onAction="#conexionServidor" prefHeight="27.0" prefWidth="110.0" text="Conectar" />
+                        <TextArea fx:id="textoServidor" layoutX="14.0" layoutY="58.0" prefHeight="237.0" prefWidth="249.0" />
+                        <Button fx:id="enviarServidor" layoutX="16.0" layoutY="309.0" mnemonicParsing="false" onAction="#enviarServidor" prefHeight="27.0" prefWidth="502.0" text="Enviar" />
+                        <TextArea fx:id="recibidoServidor" layoutX="269.0" layoutY="58.0" prefHeight="237.0" prefWidth="249.0" />
+                     </children>
+                  </Pane>
+               </content>
+            </Tab>
+          <Tab fx:id="pestanaCliente" text="Cliente">
+               <content>
+                  <Pane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Circle fx:id="indicadorCliente" fill="#ff491f" layoutX="24.0" layoutY="24.0" radius="10.0" stroke="BLACK" strokeType="INSIDE" />
+                        <TextField fx:id="hostCliente" layoutX="47.0" layoutY="11.0" prefHeight="27.0" prefWidth="195.0" />
+                        <TextField fx:id="puertoCliente" layoutX="267.0" layoutY="11.0" prefHeight="27.0" prefWidth="88.0" />
+                        <Button fx:id="conexionCliente" layoutX="409.0" layoutY="11.0" mnemonicParsing="false" onAction="#conexioneCliente" prefHeight="27.0" prefWidth="110.0" text="Conectar" />
+                        <TextArea fx:id="textoCliente" layoutX="14.0" layoutY="58.0" prefHeight="237.0" prefWidth="247.0" />
+                        <Button fx:id="enviarCliente" layoutX="16.0" layoutY="302.0" mnemonicParsing="false" onAction="#enviarCliente" prefHeight="27.0" prefWidth="491.0" text="Enviar" />
+                        <TextArea fx:id="recibidoCliente" layoutX="269.0" layoutY="57.0" prefHeight="237.0" prefWidth="249.0" />
+                     </children>
+                  </Pane>
+               </content>
+            </Tab>
+            <Tab fx:id="pestañaConfig" text="Configuracion">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <CheckBox fx:id="leerServidor" layoutX="32.0" layoutY="107.0" mnemonicParsing="false" text="Leer Archivo" />
+                        <CheckBox fx:id="encabezadoServidor" layoutX="32.0" layoutY="58.0" mnemonicParsing="false" text="Encabezado Longitud" />
+                        <CheckBox fx:id="ebdicServidor" layoutX="32.0" layoutY="82.0" mnemonicParsing="false" text="EBDIC" />
+                        <Label layoutX="32.0" layoutY="25.0" text="Configuracion Servidor" />
+                        <Label layoutX="316.0" layoutY="25.0" text="Configuracion Cliente" />
+                        <CheckBox fx:id="leerCliente" layoutX="304.0" layoutY="107.0" mnemonicParsing="false" text="Leer Archivo" />
+                        <CheckBox fx:id="encabezadoCliente" layoutX="304.0" layoutY="58.0" mnemonicParsing="false" text="Encabezado Longitud" />
+                        <CheckBox fx:id="ebdicCliente" layoutX="304.0" layoutY="82.0" mnemonicParsing="false" text="EBDIC" />
+                        <Button fx:id="botonGuardar" layoutX="223.0" layoutY="217.0" mnemonicParsing="false" onAction="#guardarConfiguracion" text="Aceptar" />
+                        <Button fx:id="seleccionServidor" layoutX="32.0" layoutY="136.0" mnemonicParsing="false" onAction="#buscarArchivo" text="Seleccionar..." />
+                        <Button fx:id="seleccionCliente" layoutX="304.0" layoutY="136.0" mnemonicParsing="false" onAction="#buscarArchivo" text="Seleccionar..." />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</GridPane>
