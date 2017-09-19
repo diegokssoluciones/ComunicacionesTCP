@@ -17,10 +17,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ClienteTCP" />
+        <module name="ComunicacionesTCP" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="ClienteTCP" target="1.8" />
+      <module name="ComunicacionesTCP" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

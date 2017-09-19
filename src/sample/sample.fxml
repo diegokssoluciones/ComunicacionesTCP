@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.shape.Circle?>
 
-<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <columnConstraints>
       <ColumnConstraints />
       <ColumnConstraints />
@@ -24,7 +24,7 @@
       <RowConstraints />
    </rowConstraints>
    <children>
-      <TabPane prefHeight="383.0" prefWidth="537.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane minHeight="383.0" minWidth="537.0" prefHeight="383.0" prefWidth="537.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab fx:id="pestanaServidor" text="Servidor">
                <content>
@@ -68,9 +68,11 @@
                         <CheckBox fx:id="leerCliente" layoutX="304.0" layoutY="107.0" mnemonicParsing="false" text="Leer Archivo" />
                         <CheckBox fx:id="encabezadoCliente" layoutX="304.0" layoutY="58.0" mnemonicParsing="false" text="Encabezado Longitud" />
                         <CheckBox fx:id="ebdicCliente" layoutX="304.0" layoutY="82.0" mnemonicParsing="false" text="EBDIC" />
-                        <Button fx:id="botonGuardar" layoutX="223.0" layoutY="217.0" mnemonicParsing="false" onAction="#guardarConfiguracion" text="Aceptar" />
-                        <Button fx:id="seleccionServidor" layoutX="32.0" layoutY="136.0" mnemonicParsing="false" onAction="#buscarArchivo" text="Seleccionar..." />
-                        <Button fx:id="seleccionCliente" layoutX="304.0" layoutY="136.0" mnemonicParsing="false" onAction="#buscarArchivo" text="Seleccionar..." />
+                        <Button fx:id="botonGuardar" layoutX="224.0" layoutY="269.0" mnemonicParsing="false" onAction="#guardarConfiguracion" text="Aceptar" />
+                        <Button fx:id="seleccionServidor" layoutX="32.0" layoutY="175.0" mnemonicParsing="false" onAction="#buscarArchivo" text="Seleccionar..." />
+                        <Button fx:id="seleccionCliente" layoutX="304.0" layoutY="175.0" mnemonicParsing="false" onAction="#buscarArchivo" text="Seleccionar..." />
+                        <TextField fx:id="rutaArchivoS" layoutX="29.0" layoutY="136.0" prefHeight="27.0" prefWidth="171.0" />
+                        <TextField fx:id="rutaArchivoC" layoutX="300.0" layoutY="137.0" prefHeight="24.0" prefWidth="173.0" />
                      </children>
                   </AnchorPane>
               </content>

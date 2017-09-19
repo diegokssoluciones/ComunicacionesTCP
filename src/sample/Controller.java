@@ -1,17 +1,22 @@
 package sample;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import sample.comunicaciones.ClienteTCP;
+import sample.comunicaciones.Configuracion;
 import sample.comunicaciones.ServidorTCP;
 
-public class Controller {
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+
+public class Controller extends Component {
 
     @FXML
     private Tab pestanaServidor;
@@ -45,6 +50,12 @@ public class Controller {
 
     @FXML
     private TextField puertoCliente;
+
+    @FXML
+    private TextField rutaArchivoS;
+
+    @FXML
+    private TextField rutaArchivoC;
 
     @FXML
     private Button conexionCliente;
@@ -93,6 +104,9 @@ public class Controller {
 
     private ClienteTCP cliente;
     private ServidorTCP servidor;
+    private final JFileChooser fc = new JFileChooser();
+    private File serverFile;
+    private File clientFile;
     private static Controller instance;
 
     public Controller() {
@@ -106,15 +120,55 @@ public class Controller {
 
     public void initialize() {
         hostServidor.setDisable(true);
+        rutaArchivoC.setDisable(true);
+        rutaArchivoS.setDisable(true);
         instance = this;
     }
 
-    public void buscarArchivo() {
-
-    }
 
     public void guardarConfiguracion() {
+        Configuracion configuracion = Configuracion.getInstance();
+        configuracion.setLongCliente(encabezadoCliente.isSelected());
+        configuracion.setLongServidor(encabezadoServidor.isSelected());
+        configuracion.setEbdicCliente(ebdicCliente.isSelected());
+        configuracion.setEbdicServidor(ebdicServidor.isSelected());
+        configuracion.setArchivoCliente(leerCliente.isSelected());
+        configuracion.setArchivoServidor(leerServidor.isSelected());
+        if (this.serverFile != null) {
+            configuracion.setServerFile(serverFile);
+        } else {
+            configuracion.setServerFile(null);
+        }
+        if (this.clientFile != null) {
+            configuracion.setClientFile(clientFile);
+        } else {
+            configuracion.setClientFile(null);
+        }
+        reflejarConfiguracion();
+    }
 
+    private void reflejarConfiguracion() {
+        Configuracion configuracion = Configuracion.getInstance();
+
+        if (configuracion.getClientFile() != null) {
+            textoCliente.setText("");
+            textoCliente.setDisable(true);
+            enviarCliente.setText("Iniciar Envios");
+        }
+        else{
+            textoCliente.setDisable(false);
+            enviarCliente.setText("Enviar");
+        }
+
+        if(configuracion.getServerFile() != null){
+            textoServidor.setText("");
+            textoServidor.setDisable(true);
+            enviarServidor.setText("Iniciar Envios");
+        }
+        else{
+            textoServidor.setDisable(false);
+            enviarServidor.setText("Enviar");
+        }
     }
 
     public void conexioneCliente() throws Exception {
@@ -182,6 +236,28 @@ public class Controller {
                 indicadorServer.setFill(Color.RED);
                 puertoServidor.setDisable(false);
                 enviarServidor.setDisable(true);
+            }
+        }
+    }
+
+    public void buscarArchivo(ActionEvent actionEvent) {
+        int respuesta = fc.showOpenDialog(this);
+
+        if (respuesta == JFileChooser.APPROVE_OPTION) {
+            if (actionEvent.getSource().equals(seleccionServidor)) {
+                serverFile = fc.getSelectedFile();
+                rutaArchivoS.setText(serverFile.getName());
+            } else if (actionEvent.getSource().equals(seleccionCliente)) {
+                clientFile = fc.getSelectedFile();
+                rutaArchivoC.setText(clientFile.getName());
+            }
+        } else {
+            if (actionEvent.getSource().equals(seleccionServidor)) {
+                serverFile = null;
+                rutaArchivoS.setText("");
+            } else if (actionEvent.getSource().equals(seleccionCliente)) {
+                clientFile = null;
+                rutaArchivoC.setText("");
             }
         }
     }

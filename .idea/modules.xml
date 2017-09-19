@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ClienteTCP.iml" filepath="$PROJECT_DIR$/ClienteTCP.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ComunicacionesTCP.iml" filepath="$PROJECT_DIR$/ComunicacionesTCP.iml" />
     </modules>
   </component>
 </project>
