@@ -24,7 +24,7 @@
       <RowConstraints />
    </rowConstraints>
    <children>
-      <TabPane minHeight="383.0" minWidth="537.0" prefHeight="383.0" prefWidth="537.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane minHeight="383.0" minWidth="537.0" prefHeight="404.0" prefWidth="537.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab fx:id="pestanaServidor" text="Servidor">
                <content>
@@ -37,6 +37,8 @@
                         <TextArea fx:id="textoServidor" layoutX="14.0" layoutY="58.0" prefHeight="237.0" prefWidth="249.0" />
                         <Button fx:id="enviarServidor" layoutX="16.0" layoutY="309.0" mnemonicParsing="false" onAction="#enviarServidor" prefHeight="27.0" prefWidth="502.0" text="Enviar" />
                         <TextArea fx:id="recibidoServidor" layoutX="269.0" layoutY="58.0" prefHeight="237.0" prefWidth="249.0" />
+                        <Label fx:id="notServidor" layoutX="24.0" layoutY="347.0" prefHeight="16.0" prefWidth="312.0" />
+                        <Label fx:id="infoServidor" layoutX="391.0" layoutY="347.0" prefHeight="16.0" prefWidth="126.0" />
                      </children>
                   </Pane>
                </content>
@@ -52,6 +54,8 @@
                         <TextArea fx:id="textoCliente" layoutX="14.0" layoutY="58.0" prefHeight="237.0" prefWidth="247.0" />
                         <Button fx:id="enviarCliente" layoutX="16.0" layoutY="302.0" mnemonicParsing="false" onAction="#enviarCliente" prefHeight="27.0" prefWidth="491.0" text="Enviar" />
                         <TextArea fx:id="recibidoCliente" layoutX="269.0" layoutY="57.0" prefHeight="237.0" prefWidth="249.0" />
+                        <Label fx:id="notCliente" layoutX="24.0" layoutY="341.0" prefHeight="16.0" prefWidth="312.0" />
+                        <Label fx:id="infoCliente" layoutX="391.0" layoutY="341.0" prefHeight="16.0" prefWidth="116.0" />
                      </children>
                   </Pane>
                </content>

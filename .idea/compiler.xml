@@ -21,7 +21,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="ClienteTCP" target="1.8" />
       <module name="ComunicacionesTCP" target="1.8" />
     </bytecodeTargetLevel>
   </component>

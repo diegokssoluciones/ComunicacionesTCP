@@ -2,8 +2,9 @@ package sample;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.*;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
@@ -15,8 +16,21 @@ import sample.comunicaciones.ServidorTCP;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.stream.IntStream;
 
 public class Controller extends Component {
+
+    @FXML
+    private Label notServidor;
+
+    @FXML
+    private Label notCliente;
+
+    @FXML
+    private Label infoServidor;
+
+    @FXML
+    private Label infoCliente;
 
     @FXML
     private Tab pestanaServidor;
@@ -108,6 +122,7 @@ public class Controller extends Component {
     private File serverFile;
     private File clientFile;
     private static Controller instance;
+    private final Configuracion configuracion = Configuracion.getInstance();
 
     public Controller() {
         cliente = ClienteTCP.getInstance();
@@ -118,22 +133,32 @@ public class Controller extends Component {
         return instance;
     }
 
+    public enum Estado {
+        INFO, WARN, ERROR
+    }
+
     public void initialize() {
         hostServidor.setDisable(true);
         rutaArchivoC.setDisable(true);
         rutaArchivoS.setDisable(true);
+        recibidoCliente.setDisable(true);
+        recibidoServidor.setDisable(true);
+        puertoCliente.setText("5000");
+        puertoServidor.setText("5000");
+        hostCliente.setText("localhost");
+        configuracion.setTiempoEspera(1500);
         instance = this;
     }
 
-
     public void guardarConfiguracion() {
-        Configuracion configuracion = Configuracion.getInstance();
         configuracion.setLongCliente(encabezadoCliente.isSelected());
         configuracion.setLongServidor(encabezadoServidor.isSelected());
         configuracion.setEbdicCliente(ebdicCliente.isSelected());
         configuracion.setEbdicServidor(ebdicServidor.isSelected());
         configuracion.setArchivoCliente(leerCliente.isSelected());
         configuracion.setArchivoServidor(leerServidor.isSelected());
+        servidor.cambiarEncoding();
+        cliente.cambiarEncoding();
         if (this.serverFile != null) {
             configuracion.setServerFile(serverFile);
         } else {
@@ -144,28 +169,25 @@ public class Controller extends Component {
         } else {
             configuracion.setClientFile(null);
         }
+
         reflejarConfiguracion();
     }
 
     private void reflejarConfiguracion() {
-        Configuracion configuracion = Configuracion.getInstance();
-
         if (configuracion.getClientFile() != null) {
             textoCliente.setText("");
             textoCliente.setDisable(true);
             enviarCliente.setText("Iniciar Envios");
-        }
-        else{
+        } else {
             textoCliente.setDisable(false);
             enviarCliente.setText("Enviar");
         }
 
-        if(configuracion.getServerFile() != null){
+        if (configuracion.getServerFile() != null) {
             textoServidor.setText("");
             textoServidor.setDisable(true);
             enviarServidor.setText("Iniciar Envios");
-        }
-        else{
+        } else {
             textoServidor.setDisable(false);
             enviarServidor.setText("Enviar");
         }
@@ -186,6 +208,8 @@ public class Controller extends Component {
                 if (cliente.isConnected()) {
                     cambiarEstado(conexionCliente);
                 }
+            } else {
+                notificar(notCliente, "Datos Invalidos", Estado.ERROR);
             }
         } else {
             if (cliente.isConnected()) {
@@ -201,13 +225,39 @@ public class Controller extends Component {
                 servidor.setIP("localhost");
                 servidor.setPuerto(Integer.parseInt(puertoServidor.getText()));
                 servidor.conectar();
+                ServidorTCP.estado = ServidorTCP.Estado.INTENTO;
 
-                cambiarEstado(conexionServidor);
+                IntStream.of(1, 2, 3).forEach(i -> pausa(100));
+                if (!ServidorTCP.estado.equals(ServidorTCP.Estado.FALLIDO)) {
+                    cambiarEstado(conexionServidor);
+                } else {
+                    notificar(notServidor, "", Estado.ERROR);
+                }
+            } else {
+                notificar(notServidor, "Datos Invalidos", Estado.ERROR);
             }
         } else {
             servidor.cerrar();
             cambiarEstado(conexionServidor);
         }
+    }
+
+    private void notificar(Label label, String s, Estado estado) {
+        Thread notifica = new Thread(() -> {
+            label.setText(s);
+            label.setVisible(true);
+            if (estado.equals(Estado.ERROR)) {
+                label.setTextFill(Color.RED);
+            } else if (estado.equals(Estado.INFO)) {
+                label.setTextFill(Color.BLUE);
+            } else if (estado.equals(Estado.WARN)) {
+                label.setTextFill(Color.ORANGE);
+            }
+            IntStream.range(0, 5).forEach(i -> pausa(1000));
+            label.setVisible(false);
+        });
+        notifica.start();
+        notifica.setDaemon(true);
     }
 
     private void cambiarEstado(Button boton) {
@@ -262,24 +312,48 @@ public class Controller extends Component {
         }
     }
 
-    public void recibidoCliente(String mensaje) {
+    public synchronized void recibidoCliente(String mensaje) {
         recibidoCliente.setText(mensaje);
     }
 
-    public void recibidoServidor(String mensaje) {
+    public synchronized void recibidoServidor(String mensaje) {
         recibidoServidor.setText(mensaje);
     }
 
     public void enviarCliente() {
-        if (!textoCliente.getText().equals("") && cliente.isConnected()) {
-            cliente.enviar(textoCliente.getText());
+        if (cliente.isConnected()) {
+            if (enviarCliente.getText().equals("Enviar")) {
+                cliente.enviar(textoCliente.getText());
+            } else {
+                enviarCliente.setDisable(true);
+                cliente.cargarArchivo();
+                Thread hiloEnvioCliente = new Thread(() -> {
+                    while (!ClienteTCP.FINISH) {
+                        cliente.enviar(textoCliente.getText());
+                        pausa(configuracion.getTiempoEspera());
+                    }
+                    enviarCliente.setDisable(false);
+                });
+                hiloEnvioCliente.start();
+                hiloEnvioCliente.setDaemon(false);
+            }
         }
     }
 
     public void enviarServidor() {
-        if (!textoServidor.getText().equals("")) {
-            servidor.enviar(textoServidor.getText());
+        if (!enviarServidor.getText().equals("Enviar")) {
+            servidor.cargarArchivo();
+            enviarServidor.setDisable(true);
+            Thread hiloEnvios = new Thread(() -> {
+                while (!ServidorTCP.FINISH) {
+                    notificar(notServidor, "Enviando...", Estado.INFO);
+                }
+                enviarServidor.setDisable(false);
+            });
+            hiloEnvios.start();
+            hiloEnvios.setDaemon(false);
         }
+        servidor.enviar(textoServidor.getText());
     }
 
     private boolean validarPuerto(String campo) {
@@ -294,6 +368,14 @@ public class Controller extends Component {
             return false;
         }
         return true;
+    }
+
+    public void pausa(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
 

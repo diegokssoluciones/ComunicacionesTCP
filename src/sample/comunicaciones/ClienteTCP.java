@@ -7,6 +7,7 @@ import com.ks.lib.tcp.protocolos.Iso;
 import sample.Controller;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -18,11 +19,15 @@ import java.util.Scanner;
 public class ClienteTCP extends Cliente implements EventosTCP {
 
     public static final ClienteTCP INSTANCE = new ClienteTCP();
+    public static boolean FINISH;
+    private Charset encoding;
     private final Configuracion configuracion = Configuracion.getInstance();
+
     Queue<String> mensajes;
 
     private ClienteTCP() {
         this.setEventos(this);
+        encoding = StandardCharsets.ISO_8859_1;
         mensajes = new LinkedList<>();
     }
 
@@ -52,35 +57,37 @@ public class ClienteTCP extends Cliente implements EventosTCP {
 
     @Override
     public void enviar(String mensaje) {
-
         if (configuracion.getClientFile() != null) {
             mensaje = obtenerMensaje();
-        } else {
-            if (configuracion.isLongCliente()) {
-                mensaje = Iso.obtenerLongitud(mensaje.length()) + mensaje;
-            }
         }
-
+        if (configuracion.isLongCliente()) {
+            mensaje = Iso.obtenerLongitud(mensaje.length()) + mensaje;
+        }
+        System.out.println(mensaje);
         super.enviar(mensaje);
     }
 
-    private synchronized String obtenerMensaje() {
-        String response = "";
+    public void cargarArchivo() {
+        FINISH = false;
         try {
-            if (mensajes.isEmpty()) {
-                Reader r = new InputStreamReader(new FileInputStream(configuracion.getClientFile().getAbsolutePath()), StandardCharsets.ISO_8859_1);
-                BufferedReader br = new BufferedReader(r);
-                Scanner reader = new Scanner(br);
-                while (reader.hasNext()) {
-                    mensajes.add(reader.next());
-                }
+            Reader r = new InputStreamReader(new FileInputStream(configuracion.getClientFile().getAbsolutePath()), encoding);
+            BufferedReader br = new BufferedReader(r);
+            Scanner reader = new Scanner(br);
+            while (reader.hasNext()) {
+                mensajes.add(reader.next());
             }
-
-            response = mensajes.peek();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        return response;
+    }
+
+    private synchronized String obtenerMensaje() {
+        if (!mensajes.isEmpty()) {
+            return mensajes.poll();
+        } else {
+            FINISH = true;
+        }
+        return "";
     }
 
     public void cerrar() {
@@ -88,6 +95,15 @@ public class ClienteTCP extends Cliente implements EventosTCP {
             this.finalize();
         } catch (Throwable throwable) {
             throwable.printStackTrace();
+        }
+    }
+
+    public void cambiarEncoding(){
+        encoding = StandardCharsets.ISO_8859_1;
+        if (configuracion.isEbdicServidor()) {
+            if (Charset.isSupported("Cp284")) {
+                encoding = Charset.forName("Cp284");
+            }
         }
     }
 }

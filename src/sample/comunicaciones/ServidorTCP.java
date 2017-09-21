@@ -8,6 +8,7 @@ import com.ks.lib.tcp.protocolos.Iso;
 import sample.Controller;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -19,6 +20,10 @@ import java.util.Scanner;
 public class ServidorTCP extends Servidor implements EventosTCP {
 
     private static final ServidorTCP INSTANCE = new ServidorTCP();
+    public static Estado estado;
+    private Charset encoding;
+    public static boolean FINISH;
+
     private final Configuracion configuracion = Configuracion.getInstance();
     Queue<String> mensajes;
 
@@ -31,6 +36,10 @@ public class ServidorTCP extends Servidor implements EventosTCP {
         return INSTANCE;
     }
 
+    public enum Estado {
+        INTENTO, FALLIDO
+    }
+
     @Override
     public void conexionEstablecida(Cliente cliente) {
         System.out.println("Se establecio conexion con " + cliente);
@@ -38,7 +47,7 @@ public class ServidorTCP extends Servidor implements EventosTCP {
 
     @Override
     public void errorConexion(String s) {
-
+        estado = Estado.FALLIDO;
     }
 
     @Override
@@ -48,40 +57,41 @@ public class ServidorTCP extends Servidor implements EventosTCP {
 
     @Override
     public void cerrarConexion(Cliente cliente) {
-
+        System.out.println("Cerrar");
     }
 
     @Override
     public void enviar(String mensaje) {
-
         if (configuracion.getServerFile() != null) {
             mensaje = obtenerMensaje();
-        } else {
-            if (configuracion.isLongServidor()) {
-                mensaje = Iso.obtenerLongitud(mensaje.length()) + mensaje;
-            }
         }
-
+        if (configuracion.isLongServidor()) {
+            mensaje = Iso.obtenerLongitud(mensaje.length()) + mensaje;
+        }
         super.enviar(mensaje);
     }
 
     private synchronized String obtenerMensaje() {
-        String response = "";
-        try {
-            if (mensajes.isEmpty()) {
-                Reader r = new InputStreamReader(new FileInputStream(configuracion.getServerFile().getAbsolutePath()), StandardCharsets.ISO_8859_1);
-                BufferedReader br = new BufferedReader(r);
-                Scanner reader = new Scanner(br);
-                while (reader.hasNext()) {
-                    mensajes.add(reader.next());
-                }
-            }
+        if (!mensajes.isEmpty()) {
+            return mensajes.poll();
+        } else {
+            FINISH = true;
+        }
+        return "";
+    }
 
-            response = mensajes.peek();
+    public void cargarArchivo() {
+        FINISH = false;
+        try {
+            Reader r = new InputStreamReader(new FileInputStream(configuracion.getServerFile().getAbsolutePath()), StandardCharsets.ISO_8859_1);
+            BufferedReader br = new BufferedReader(r);
+            Scanner reader = new Scanner(br);
+            while (reader.hasNext()) {
+                mensajes.add(reader.next());
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        return response;
     }
 
     public void cerrar() {
@@ -89,6 +99,15 @@ public class ServidorTCP extends Servidor implements EventosTCP {
             this.finalize();
         } catch (Throwable throwable) {
             throwable.printStackTrace();
+        }
+    }
+
+    public void cambiarEncoding(){
+        encoding = StandardCharsets.ISO_8859_1;
+        if (configuracion.isEbdicServidor()) {
+            if (Charset.isSupported("Cp284")) {
+                encoding = Charset.forName("Cp284");
+            }
         }
     }
 }

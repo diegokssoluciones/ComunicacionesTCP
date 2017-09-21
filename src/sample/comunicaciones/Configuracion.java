@@ -6,16 +6,17 @@ import java.io.File;
 
 public class Configuracion {
 
-    boolean longServidor;
-    boolean longCliente;
-    boolean ebdicServidor;
-    boolean ebdicCliente;
-    boolean archivoServidor;
-    boolean archivoCliente;
-    File serverFile;
-    File clientFile;
-    String rutaArchServidor;
-    String rutaArchCliente;
+    private boolean longServidor;
+    private boolean longCliente;
+    private boolean ebdicServidor;
+    private boolean ebdicCliente;
+    private boolean archivoServidor;
+    private boolean archivoCliente;
+    private File serverFile;
+    private File clientFile;
+    private String rutaArchServidor;
+    private String rutaArchCliente;
+    private int tiempoEspera;
 
     private Configuracion() {
 
@@ -40,6 +41,14 @@ public class Configuracion {
 
     public boolean isLongCliente() {
         return longCliente;
+    }
+
+    public int getTiempoEspera() {
+        return tiempoEspera;
+    }
+
+    public void setTiempoEspera(int tiempoEspera) {
+        this.tiempoEspera = tiempoEspera;
     }
 
     public void setLongCliente(boolean longCliente) {
