@@ -1,10 +1,12 @@
 package sample.comunicaciones;
 
 import com.ks.lib.tcp.Cliente;
+import com.ks.lib.tcp.Comunicaciones;
 import com.ks.lib.tcp.EventosTCP;
 import com.ks.lib.tcp.Servidor;
 import com.ks.lib.tcp.Tcp;
 import com.ks.lib.tcp.protocolos.Iso;
+import javafx.application.Platform;
 import sample.Controller;
 
 import java.io.*;
@@ -19,95 +21,101 @@ import java.util.Scanner;
  */
 public class ServidorTCP extends Servidor implements EventosTCP {
 
-    private static final ServidorTCP INSTANCE = new ServidorTCP();
-    public static Estado estado;
-    private Charset encoding;
-    public static boolean FINISH;
+  private static final ServidorTCP INSTANCE = new ServidorTCP();
+  public static Estado estado;
+  private Charset encoding;
+  public static boolean FINISH;
 
-    private final Configuracion configuracion = Configuracion.getInstance();
-    Queue<String> mensajes;
+  private final Configuracion configuracion = Configuracion.getInstance();
+  Queue<String> mensajes;
 
-    private ServidorTCP() {
-        this.setEventos(this);
-        mensajes = new LinkedList<>();
+  private ServidorTCP() {
+    this.setEventos(this);
+    mensajes = new LinkedList<>();
+  }
+
+  public static ServidorTCP getInstance() {
+    return INSTANCE;
+  }
+
+  public enum Estado {
+    INTENTO, FALLIDO
+  }
+
+  @Override
+  public void conexionEstablecida(Cliente cliente) {
+    Platform
+        .runLater(() -> Controller.getInstance().clientesConectados(this.getClientesConectados()));
+  }
+
+  @Override
+  public void errorConexion(String s) {
+    estado = Estado.FALLIDO;
+  }
+
+  @Override
+  public void datosRecibidos(String s, byte[] bytes, Tcp tcp) {
+    Controller.getInstance().recibidoServidor(s);
+  }
+
+  @Override
+  public void cerrarConexion(Cliente cliente) {
+    Platform
+        .runLater(() -> Controller.getInstance().clientesConectados(this.getClientesConectados()));
+  }
+
+  @Override
+  public void enviar(String mensaje) {
+    if (configuracion.getServerFile() != null) {
+      mensaje = obtenerMensaje();
+    }
+    if (configuracion.isLongServidor()) {
+      mensaje = Iso.obtenerLongitud(mensaje.length()) + mensaje;
     }
 
-    public static ServidorTCP getInstance() {
-        return INSTANCE;
-    }
+    mensaje.replace("<STX>", Comunicaciones.STX);
+    mensaje.replace("<ETX>", Comunicaciones.ETX);
 
-    public enum Estado {
-        INTENTO, FALLIDO
-    }
+    super.enviar(mensaje);
+  }
 
-    @Override
-    public void conexionEstablecida(Cliente cliente) {
-        System.out.println("Se establecio conexion con " + cliente);
+  private synchronized String obtenerMensaje() {
+    if (!mensajes.isEmpty()) {
+      return mensajes.poll();
+    } else {
+      FINISH = true;
     }
+    return "";
+  }
 
-    @Override
-    public void errorConexion(String s) {
-        estado = Estado.FALLIDO;
+  public void cargarArchivo() {
+    FINISH = false;
+    try {
+      Reader r = new InputStreamReader(
+          new FileInputStream(configuracion.getServerFile().getAbsolutePath()),
+          StandardCharsets.ISO_8859_1);
+      BufferedReader br = new BufferedReader(r);
+      Scanner reader = new Scanner(br);
+      while (reader.hasNext()) {
+        mensajes.add(reader.next());
+      }
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
     }
+  }
 
-    @Override
-    public void datosRecibidos(String s, byte[] bytes, Tcp tcp) {
-        Controller.getInstance().recibidoServidor(s);
-    }
+  public void cerrar() {
+    super.cerrar();
+    Platform
+        .runLater(() -> Controller.getInstance().clientesConectados(0));
+  }
 
-    @Override
-    public void cerrarConexion(Cliente cliente) {
-        System.out.println("Cerrar");
+  public void cambiarEncoding() {
+    encoding = StandardCharsets.ISO_8859_1;
+    if (configuracion.isEbdicServidor()) {
+      if (Charset.isSupported("Cp284")) {
+        encoding = Charset.forName("Cp284");
+      }
     }
-
-    @Override
-    public void enviar(String mensaje) {
-        if (configuracion.getServerFile() != null) {
-            mensaje = obtenerMensaje();
-        }
-        if (configuracion.isLongServidor()) {
-            mensaje = Iso.obtenerLongitud(mensaje.length()) + mensaje;
-        }
-        super.enviar(mensaje);
-    }
-
-    private synchronized String obtenerMensaje() {
-        if (!mensajes.isEmpty()) {
-            return mensajes.poll();
-        } else {
-            FINISH = true;
-        }
-        return "";
-    }
-
-    public void cargarArchivo() {
-        FINISH = false;
-        try {
-            Reader r = new InputStreamReader(new FileInputStream(configuracion.getServerFile().getAbsolutePath()), StandardCharsets.ISO_8859_1);
-            BufferedReader br = new BufferedReader(r);
-            Scanner reader = new Scanner(br);
-            while (reader.hasNext()) {
-                mensajes.add(reader.next());
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void cerrar() {
-        try {
-            this.finalize();
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }
-    }
-
-    public void cambiarEncoding(){
-        encoding = StandardCharsets.ISO_8859_1;
-        if (configuracion.isEbdicServidor()) {
-            if (Charset.isSupported("Cp284")) {
-                encoding = Charset.forName("Cp284");
-            }
-        }
-    }
+  }
 }

@@ -10,6 +10,8 @@
       <root url="jar://$MAVEN_REPOSITORY$/com/ks/kslib/1.6.4.5/kslib-1.6.4.5-sources.jar!/" />
       <root url="file://$PROJECT_DIR$/../../JavaProyects/lib-java/src/main/java" />
       <root url="file://$PROJECT_DIR$/../../JavaProyects/lib-java/src/test/java" />
+      <root url="file://$PROJECT_DIR$/../../../JavaProyects/Utilidades/lib-java/src/main/java" />
+      <root url="file://$PROJECT_DIR$/../../../JavaProyects/Utilidades/lib-java/src/test/java" />
     </SOURCES>
   </library>
 </component>
